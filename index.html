@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>أسعار الذهب - كيان</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Cairo', sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen bg-amber-50 text-zinc-900">
+  <header class="bg-amber-600 text-white py-4 shadow">
+    <div class="max-w-4xl mx-auto px-4">
+      <h1 class="text-2xl font-bold">كيان – أسعار الذهب بالدينار الكويتي</h1>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold">الأسعار المباشرة</h2>
+      <time id="lastUpdated" class="text-sm text-zinc-600"></time>
+    </div>
+
+    <div class="overflow-x-auto rounded-xl shadow border border-amber-200">
+      <table class="w-full text-center border-collapse">
+        <thead class="bg-amber-100 text-amber-900">
+          <tr>
+            <th class="py-3 px-4">العيار</th>
+            <th class="py-3 px-4">السعر (د.ك/غ)</th>
+          </tr>
+        </thead>
+        <tbody id="rates" class="divide-y divide-amber-200 bg-white">
+          <tr><td colspan="2" class="py-4 text-zinc-500">جارٍ تحميل البيانات...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="text-center text-xs text-zinc-600 py-6">
+    © 2025 كيان – البيانات من metals.live
+  </footer>
+
+  <script>
+    async function fetchRates() {
+      try {
+        // جلب السعر بالدولار للأونصة
+        const res = await fetch("https://api.metals.live/v1/spot");
+        const data = await res.json();
+
+        // سعر الأونصة بالدولار (XAU)
+        const goldUSD = data.find(item => item.hasOwnProperty("gold"))?.gold;
+        if (!goldUSD) throw new Error("لا يوجد بيانات ذهب");
+
+        // تحويل الأونصة إلى غرام (1 أونصة = 31.1035غ)
+        const pricePerGramUSD = goldUSD / 31.1035;
+
+        // سعر صرف الدولار إلى الدينار الكويتي (ثابت تقريبي 1 USD ≈ 0.31 KWD)
+        const usdToKwd = 0.31;
+        const pricePerGramKWD = pricePerGramUSD * usdToKwd;
+
+        // العيارات
+        const karats = [24, 22, 21, 18];
+        const tbody = document.getElementById("rates");
+        tbody.innerHTML = "";
+
+        karats.forEach(k => {
+          const price = (pricePerGramKWD * (k/24)).toFixed(3);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="py-3 px-4 font-semibold">${k}</td>
+            <td class="py-3 px-4">${price} د.ك</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        const dt = new Date();
+        document.getElementById("lastUpdated").textContent =
+          dt.toLocaleString("ar-KW", { dateStyle: "full", timeStyle: "short" });
+
+      } catch (e) {
+        console.error(e);
+        document.getElementById("rates").innerHTML =
+          '<tr><td colspan="2" class="py-4 text-red-600">تعذر جلب البيانات</td></tr>';
+      }
+    }
+
+    fetchRates();
+    setInterval(fetchRates, 10 * 60 * 1000); // تحديث كل 10 دقائق
+  </script>
+</body>
+</html>
