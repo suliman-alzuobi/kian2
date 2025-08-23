@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>أسعار الذهب - كيان</title>
+  <title>كيان | أسعار الذهب بالدينار الكويتي</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: 'Cairo', sans-serif; }
-  </style>
+  <style> body { font-family: 'Cairo', sans-serif; } </style>
 </head>
 <body class="min-h-screen bg-amber-50 text-zinc-900">
   <header class="bg-amber-600 text-white py-4 shadow">
@@ -18,7 +16,7 @@
 
   <main class="max-w-4xl mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold">الأسعار المباشرة</h2>
+      <h2 class="text-lg font-semibold">أسعار الذهب الحيّة (Metals.Dev)</h2>
       <time id="lastUpdated" class="text-sm text-zinc-600"></time>
     </div>
 
@@ -38,49 +36,42 @@
   </main>
 
   <footer class="text-center text-xs text-zinc-600 py-6">
-    © 2025 كيان – البيانات من metals.live
+    © 2025 كيان – البيانات من Metals.Dev
   </footer>
 
   <script>
     async function fetchRates() {
       try {
-        // جلب السعر بالدولار للأونصة
-        const res = await fetch("https://api.metals.live/v1/spot");
-        const data = await res.json();
+        const res = await fetch('https://api.metals.dev/v1/latest?currency=USD&unit=g');
+        if (!res.ok) throw new Error('تعذر جلب البيانات');
+        const json = await res.json();
 
-        // سعر الأونصة بالدولار (XAU)
-        const goldUSD = data.find(item => item.hasOwnProperty("gold"))?.gold;
-        if (!goldUSD) throw new Error("لا يوجد بيانات ذهب");
+        const pricePerGramUSD = json.metals.gold;
+        const usdToKwd = json.currencies.KWD;
+        if (!pricePerGramUSD || !usdToKwd) throw new Error('بيانات غير مكتملة');
 
-        // تحويل الأونصة إلى غرام (1 أونصة = 31.1035غ)
-        const pricePerGramUSD = goldUSD / 31.1035;
-
-        // سعر صرف الدولار إلى الدينار الكويتي (ثابت تقريبي 1 USD ≈ 0.31 KWD)
-        const usdToKwd = 0.31;
         const pricePerGramKWD = pricePerGramUSD * usdToKwd;
 
-        // العيارات
         const karats = [24, 22, 21, 18];
-        const tbody = document.getElementById("rates");
-        tbody.innerHTML = "";
+        const tbody = document.getElementById('rates');
+        tbody.innerHTML = '';
 
         karats.forEach(k => {
-          const price = (pricePerGramKWD * (k/24)).toFixed(3);
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td class="py-3 px-4 font-semibold">${k}</td>
-            <td class="py-3 px-4">${price} د.ك</td>
-          `;
-          tbody.appendChild(tr);
+          const price = (pricePerGramKWD * (k / 24)).toFixed(3);
+          tbody.innerHTML += `
+            <tr>
+              <td class="py-3 px-4 font-semibold">${k}</td>
+              <td class="py-3 px-4">${price} د.ك</td>
+            </tr>`;
         });
 
         const dt = new Date();
-        document.getElementById("lastUpdated").textContent =
-          dt.toLocaleString("ar-KW", { dateStyle: "full", timeStyle: "short" });
+        document.getElementById('lastUpdated').textContent =
+          dt.toLocaleString('ar-KW', { dateStyle: 'full', timeStyle: 'short' });
 
       } catch (e) {
         console.error(e);
-        document.getElementById("rates").innerHTML =
+        document.getElementById('rates').innerHTML =
           '<tr><td colspan="2" class="py-4 text-red-600">تعذر جلب البيانات</td></tr>';
       }
     }
