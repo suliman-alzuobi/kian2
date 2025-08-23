@@ -2,76 +2,68 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>كيان - أسعار الذهب</title>
   <style>
     body {
-      font-family: "Tahoma", sans-serif;
-      background: #f8f9fa;
+      font-family: "Tajawal", sans-serif;
       text-align: center;
-      direction: rtl;
+      background: #f5f5f5;
+      color: #333;
       padding: 20px;
     }
     h1 {
-      color: #d4af37;
+      color: #b68d40;
     }
     .card {
       background: white;
-      border-radius: 15px;
-      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       margin: 15px auto;
-      width: 250px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      max-width: 400px;
     }
     .price {
-      font-size: 22px;
-      font-weight: bold;
+      font-size: 1.5em;
       color: #444;
     }
   </style>
 </head>
 <body>
-  <h1>💎 كيان - أسعار الذهب</h1>
-  <div id="prices">جاري تحميل الأسعار...</div>
+  <h1>💎 كيان - أسعار الذهب بالدينار الكويتي</h1>
+  <div id="prices"></div>
 
   <script>
-    const apiUrl = 'https://api.metals.dev/v1/latest?api_key=RDS13WRXJ0JSTUBEWJAA410BEWJAA&currency=KWD&unit=g';
-    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(apiUrl);
+    const apiKey = "RDS13WRXJ0JSTUBEWJAA410BEWJAA";
+    const apiUrl = `https://api.metals.dev/v1/latest?api_key=${apiKey}&currency=KWD&unit=g`;
+    const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(apiUrl);
 
     fetch(proxyUrl)
-      .then(res => res.json())
+      .then(r => r.json())
       .then(data => {
         let json = JSON.parse(data.contents);
-
-        if (!json || !json.metals || !json.metals.XAU) {
-          document.getElementById("prices").innerHTML = "تعذر جلب البيانات ❌";
-          return;
-        }
-
-        let goldPrice = json.metals.XAU; // سعر الذهب عيار 24 لكل غرام
-        let pricesHTML = "";
-
-        let karats = {
-          "عيار 24": 24,
-          "عيار 22": 22,
-          "عيار 21": 21,
-          "عيار 18": 18
+        let gold24 = json.metals.XAU; // سعر 24 قيراط للغرام
+        let prices = {
+          "عيار 24": gold24,
+          "عيار 22": gold24 * 22 / 24,
+          "عيار 21": gold24 * 21 / 24,
+          "عيار 18": gold24 * 18 / 24,
         };
 
-        for (let [name, value] of Object.entries(karats)) {
-          let price = (goldPrice * (value / 24)).toFixed(3);
-          pricesHTML += `
+        let container = document.getElementById("prices");
+        for (let [karat, value] of Object.entries(prices)) {
+          container.innerHTML += `
             <div class="card">
-              <h2>${name}</h2>
-              <div class="price">${price} د.ك</div>
+              <h2>${karat}</h2>
+              <div class="price">${value.toFixed(3)} د.ك</div>
             </div>
           `;
         }
-
-        document.getElementById("prices").innerHTML = pricesHTML;
       })
-      .catch(err => {
-        console.error("خطأ:", err);
-        document.getElementById("prices").innerHTML = "تعذر جلب البيانات ❌";
+      .catch(e => {
+        document.getElementById("prices").innerHTML =
+          "<p style='color:red'>⚠️ تعذر جلب البيانات</p>";
+        console.error(e);
       });
   </script>
 </body>
