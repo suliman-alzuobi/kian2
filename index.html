@@ -1,83 +1,78 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>كيان | أسعار الذهب بالدينار الكويتي</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style> body { font-family: 'Cairo', sans-serif; } </style>
+  <title>كيان - أسعار الذهب</title>
+  <style>
+    body {
+      font-family: "Tahoma", sans-serif;
+      background: #f8f9fa;
+      text-align: center;
+      direction: rtl;
+      padding: 20px;
+    }
+    h1 {
+      color: #d4af37;
+    }
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 15px auto;
+      width: 250px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .price {
+      font-size: 22px;
+      font-weight: bold;
+      color: #444;
+    }
+  </style>
 </head>
-<body class="min-h-screen bg-amber-50 text-zinc-900">
-  <header class="bg-amber-600 text-white py-4 shadow">
-    <div class="max-w-4xl mx-auto px-4">
-      <h1 class="text-2xl font-bold">كيان – أسعار الذهب بالدينار الكويتي</h1>
-    </div>
-  </header>
-
-  <main class="max-w-4xl mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold">أسعار الذهب الحيّة (Metals.Dev)</h2>
-      <time id="lastUpdated" class="text-sm text-zinc-600"></time>
-    </div>
-
-    <div class="overflow-x-auto rounded-xl shadow border border-amber-200">
-      <table class="w-full text-center border-collapse">
-        <thead class="bg-amber-100 text-amber-900">
-          <tr>
-            <th class="py-3 px-4">العيار</th>
-            <th class="py-3 px-4">السعر (د.ك/غ)</th>
-          </tr>
-        </thead>
-        <tbody id="rates" class="divide-y divide-amber-200 bg-white">
-          <tr><td colspan="2" class="py-4 text-zinc-500">جارٍ تحميل البيانات...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </main>
-
-  <footer class="text-center text-xs text-zinc-600 py-6">
-    © 2025 كيان – البيانات من Metals.Dev
-  </footer>
+<body>
+  <h1>💎 كيان - أسعار الذهب</h1>
+  <div id="prices">جاري تحميل الأسعار...</div>
 
   <script>
-    async function fetchRates() {
-      try {
-        const res = await fetch('https://api.metals.dev/v1/latest?currency=USD&unit=g');
-        if (!res.ok) throw new Error('تعذر جلب البيانات');
-        const json = await res.json();
+    const apiUrl = 'https://api.metals.dev/v1/latest?api_key=RDS13WRXJ0JSTUBEWJAA410BEWJAA&currency=KWD&unit=g';
+    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(apiUrl);
 
-        const pricePerGramUSD = json.metals.gold;
-        const usdToKwd = json.currencies.KWD;
-        if (!pricePerGramUSD || !usdToKwd) throw new Error('بيانات غير مكتملة');
+    fetch(proxyUrl)
+      .then(res => res.json())
+      .then(data => {
+        let json = JSON.parse(data.contents);
 
-        const pricePerGramKWD = pricePerGramUSD * usdToKwd;
+        if (!json || !json.metals || !json.metals.XAU) {
+          document.getElementById("prices").innerHTML = "تعذر جلب البيانات ❌";
+          return;
+        }
 
-        const karats = [24, 22, 21, 18];
-        const tbody = document.getElementById('rates');
-        tbody.innerHTML = '';
+        let goldPrice = json.metals.XAU; // سعر الذهب عيار 24 لكل غرام
+        let pricesHTML = "";
 
-        karats.forEach(k => {
-          const price = (pricePerGramKWD * (k / 24)).toFixed(3);
-          tbody.innerHTML += `
-            <tr>
-              <td class="py-3 px-4 font-semibold">${k}</td>
-              <td class="py-3 px-4">${price} د.ك</td>
-            </tr>`;
-        });
+        let karats = {
+          "عيار 24": 24,
+          "عيار 22": 22,
+          "عيار 21": 21,
+          "عيار 18": 18
+        };
 
-        const dt = new Date();
-        document.getElementById('lastUpdated').textContent =
-          dt.toLocaleString('ar-KW', { dateStyle: 'full', timeStyle: 'short' });
+        for (let [name, value] of Object.entries(karats)) {
+          let price = (goldPrice * (value / 24)).toFixed(3);
+          pricesHTML += `
+            <div class="card">
+              <h2>${name}</h2>
+              <div class="price">${price} د.ك</div>
+            </div>
+          `;
+        }
 
-      } catch (e) {
-        console.error(e);
-        document.getElementById('rates').innerHTML =
-          '<tr><td colspan="2" class="py-4 text-red-600">تعذر جلب البيانات</td></tr>';
-      }
-    }
-
-    fetchRates();
-    setInterval(fetchRates, 10 * 60 * 1000); // تحديث كل 10 دقائق
+        document.getElementById("prices").innerHTML = pricesHTML;
+      })
+      .catch(err => {
+        console.error("خطأ:", err);
+        document.getElementById("prices").innerHTML = "تعذر جلب البيانات ❌";
+      });
   </script>
 </body>
 </html>
