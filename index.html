@@ -40,7 +40,7 @@
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-darkBg min-h-screen transition-colors duration-300">
-    <!-- Dark mode detection -->
+
     <script>
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
@@ -170,170 +170,54 @@
     </div>
 
     <script>
-        let lastUpdateTime = null;
+        let currentGoldPrice = 2371.96; // السعر الأساسي بالدولار للأونصة
         let updateInterval = null;
-        
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            updateDateTime();
-            fetchGoldPrices();
-            startAutoUpdate();
-            
-            // Manual refresh button
-            document.getElementById('refreshBtn').addEventListener('click', () => {
-                fetchGoldPrices();
-            });
-        });
 
-        // Update date and time display
+        // تحديث الوقت
         function updateDateTime() {
             const now = new Date();
-            const timeOptions = { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit', 
-                hour12: false 
-            };
-            const dateOptions = { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            };
-
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString('ar-SA', timeOptions);
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA', dateOptions);
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+            document.getElementById('currentDate').textContent = now.toLocaleDateString();
         }
 
-        // Gold price simulation data - Based on realistic Kuwait market prices
-        let currentGoldPrice = 2371.96; // Base price in USD per ounce (similar to image)
-        
-        // Register handler for gold price responses (backup)
-        if (window.Poe && window.Poe.registerHandler) {
-            window.Poe.registerHandler("goldPriceHandler", (result, context) => {
-                const response = result.responses[0];
-                
-                if (response.status === "error") {
-                    console.log("API Error, using simulated prices");
-                    updateStatus('error');
-                    setTimeout(() => generateSimulatedPrices(), 1000);
-                    return;
-                }
-                
-                if (response.status === "complete") {
-                    try {
-                        // Parse JSON response from Claude
-                        const data = JSON.parse(response.content);
-                        updateGoldPrices(data);
-                        updateStatus('success');
-                        lastUpdateTime = new Date();
-                    } catch (error) {
-                        console.log("Parsing error, using simulated prices");
-                        generateSimulatedPrices();
-                    }
-                }
-            });
-        }
-
-        // Generate simulated prices based on realistic Kuwait market rates
+        // توليد أسعار الذهب بشكل محاكاة واقعية
         function generateSimulatedPrices() {
-            // Add small random fluctuation (-15 to +15 USD)
-            const fluctuation = (Math.random() - 0.5) * 30;
+            const fluctuation = (Math.random()-0.5)*30;
             currentGoldPrice = Math.max(2330, Math.min(2420, currentGoldPrice + fluctuation));
-            
-            // Kuwait market pricing (includes local premiums and margins)
-            // These prices are calibrated to match typical Kuwait gold market rates
-            const kuwaitMarketRate = 0.435; // Higher rate reflecting Kuwait market premiums
-            const usdPerGram = currentGoldPrice / 31.1035; // Convert ounce to gram
-            const baseKwdPerGram = usdPerGram * kuwaitMarketRate; // Convert to KWD with market premium
-            
-            // Realistic spread for Kuwait gold market (about 1.5%)
-            const spreadPercent = 0.015;
-            
+
+            const kuwaitRate = 0.435;
+            const usdPerGram = currentGoldPrice/31.1035;
+            const baseKwd = usdPerGram*kuwaitRate;
+            const spread = 0.015;
+
             const data = {
                 goldPriceUSD: currentGoldPrice,
-                exchangeRate: kuwaitMarketRate,
                 prices: {
-                    "24": {
-                        sell: (baseKwdPerGram * 1.00 * (1 + spreadPercent)),
-                        buy: (baseKwdPerGram * 1.00 * (1 - spreadPercent))
-                    },
-                    "22": {
-                        sell: (baseKwdPerGram * 0.916 * (1 + spreadPercent)),
-                        buy: (baseKwdPerGram * 0.916 * (1 - spreadPercent))
-                    },
-                    "21": {
-                        sell: (baseKwdPerGram * 0.875 * (1 + spreadPercent)),
-                        buy: (baseKwdPerGram * 0.875 * (1 - spreadPercent))
-                    },
-                    "18": {
-                        sell: (baseKwdPerGram * 0.750 * (1 + spreadPercent)),
-                        buy: (baseKwdPerGram * 0.750 * (1 - spreadPercent))
-                    }
+                    "24": { sell: baseKwd*(1+spread), buy: baseKwd*(1-spread) },
+                    "22": { sell: baseKwd*0.916*(1+spread), buy: baseKwd*0.916*(1-spread) },
+                    "21": { sell: baseKwd*0.875*(1+spread), buy: baseKwd*0.875*(1-spread) },
+                    "18": { sell: baseKwd*0.750*(1+spread), buy: baseKwd*0.750*(1-spread) }
                 }
             };
-            
+
             updateGoldPrices(data);
             updateStatus('success');
         }
 
-        // Fetch gold prices using Poe API or fallback to simulation
-        async function fetchGoldPrices() {
-            updateStatus('loading');
-            
-            // Try API first, fallback to simulation
-            if (window.Poe && window.Poe.sendUserMessage) {
-                try {
-                    await window.Poe.sendUserMessage(
-                        "@Claude-Sonnet-4 Please provide current gold prices in JSON format matching Kuwait market rates. Gold price per ounce in USD should be around $2370. Calculate realistic Kuwait market prices for carats (24, 22, 21, 18) in KWD per gram. Include buy/sell spread of about 1.5%. Kuwait gold prices are typically higher due to local premiums. Provide ONLY raw JSON with no explanations or formatting. Format: {\"goldPriceUSD\": number, \"exchangeRate\": number, \"prices\": {\"24\": {\"sell\": number, \"buy\": number}, \"22\": {\"sell\": number, \"buy\": number}, \"21\": {\"sell\": number, \"buy\": number}, \"18\": {\"sell\": number, \"buy\": number}}}",
-                        {
-                            handler: "goldPriceHandler",
-                            stream: false,
-                            openChat: false
-                        }
-                    );
-                    
-                    // Fallback to simulation after 5 seconds if no response
-                    setTimeout(() => {
-                        if (!lastUpdateTime || (new Date() - lastUpdateTime) > 10000) {
-                            console.log("API timeout, using simulated prices");
-                            generateSimulatedPrices();
-                        }
-                    }, 5000);
-                    
-                } catch (error) {
-                    console.log("API unavailable, using simulated prices");
-                    generateSimulatedPrices();
-                }
-            } else {
-                // API not available, use simulation
-                console.log("Poe API not available, using simulated prices");
-                generateSimulatedPrices();
-            }
-        }
-
-        // Update prices in the UI
         function updateGoldPrices(data) {
-            // Update main USD price
             document.getElementById('goldPriceUSD').textContent = $${data.goldPriceUSD.toFixed(2)};
-            
-            // Update KWD prices for each carat
-            const carats = ['24', '22', '21', '18'];
-            carats.forEach(carat => {
-                if (data.prices[carat]) {
-                    document.getElementById(sell${carat}).textContent = data.prices[carat].sell.toFixed(3);
-                    document.getElementById(buy${carat}).textContent = data.prices[carat].buy.toFixed(3);
-                }
+            ['24','22','21','18'].forEach(carat => {
+                document.getElementById(sell${carat}).textContent = data.prices[carat].sell.toFixed(3);
+                document.getElementById(buy${carat}).textContent = data.prices[carat].buy.toFixed(3);
             });
         }
 
-        // Update status indicator
         function updateStatus(status) {
             const statusEl = document.getElementById('updateStatus');
             const statusText = statusEl.nextElementSibling;
-            
             statusEl.className = 'w-3 h-3 rounded-full';
-            
-            switch(status) {
+
+            switch(status){
                 case 'loading':
                     statusEl.className += ' bg-yellow-400 loading-pulse';
                     statusText.textContent = 'جاري التحديث...';
@@ -352,24 +236,21 @@
             }
         }
 
-        // Start auto-update every 30 seconds
         function startAutoUpdate() {
-            // Update time every second
-            setInterval(updateDateTime, 1000);
-            
-            // Update prices every 30 seconds
-            updateInterval = setInterval(() => {
-                fetchGoldPrices();
-            }, 30000);
+            setInterval(updateDateTime, 1000); // تحديث الوقت كل ثانية
+            updateInterval = setInterval(generateSimulatedPrices, 30000); // تحديث الأسعار كل 30 ثانية
         }
 
-        // Stop auto-update (if needed)
-        function stopAutoUpdate() {
-            if (updateInterval) {
-                clearInterval(updateInterval);
-                updateInterval = null;
-            }
-        }
+        document.addEventListener('DOMContentLoaded', function(){
+            updateDateTime();
+            generateSimulatedPrices(); // أول تحديث مباشر عند التحميل
+            startAutoUpdate();
+
+            document.getElementById('refreshBtn').addEventListener('click', () => {
+                generateSimulatedPrices(); // تحديث يدوي
+            });
+        });
     </script>
+
 </body>
 </html>
