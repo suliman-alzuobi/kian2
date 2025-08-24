@@ -1,70 +1,57 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>كيان - أسعار الذهب</title>
-  <style>
-    body {
-      font-family: "Tajawal", sans-serif;
-      text-align: center;
-      background: #f5f5f5;
-      color: #333;
-      padding: 20px;
-    }
-    h1 {
-      color: #b68d40;
-    }
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin: 15px auto;
-      padding: 20px;
-      max-width: 400px;
-    }
-    .price {
-      font-size: 1.5em;
-      color: #444;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كيان - أسعار الذهب</title>
+<style>
+  body {
+    font-family: "Tajawal", sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    text-align: center;
+    padding: 20px;
+  }
+  h1 {
+    color: #b68d40;
+  }
+  .card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin: 15px auto;
+    padding: 20px;
+    max-width: 300px;
+  }
+  .price {
+    font-size: 1.5em;
+    color: #444;
+  }
+</style>
 </head>
 <body>
-  <h1>💎 كيان - أسعار الذهب بالدينار الكويتي</h1>
-  <div id="prices"></div>
+<h1>💎 كيان - أسعار الذهب بالدينار الكويتي</h1>
+<div id="prices"></div>
 
-  <script>
-    const apiKey = "RDS13WRXJ0JSTUBEWJAA410BEWJAA";
-    const apiUrl = `https://api.metals.dev/v1/latest?api_key=${apiKey}&currency=KWD&unit=g`;
-    const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(apiUrl);
+<script>
+  // بيانات ثابتة (يمكنك تحديثها يدوياً)
+  const goldPrices = {
+    "24": 31.526,  // سعر الغرام عيار 24
+    "22": 31.526 * 22/24,
+    "21": 31.526 * 21/24,
+    "18": 31.526 * 18/24
+  };
 
-    fetch(proxyUrl)
-      .then(r => r.json())
-      .then(data => {
-        let json = JSON.parse(data.contents);
-        let gold24 = json.metals.XAU; // سعر 24 قيراط للغرام
-        let prices = {
-          "عيار 24": gold24,
-          "عيار 22": gold24 * 22 / 24,
-          "عيار 21": gold24 * 21 / 24,
-          "عيار 18": gold24 * 18 / 24,
-        };
-
-        let container = document.getElementById("prices");
-        for (let [karat, value] of Object.entries(prices)) {
-          container.innerHTML += `
-            <div class="card">
-              <h2>${karat}</h2>
-              <div class="price">${value.toFixed(3)} د.ك</div>
-            </div>
-          `;
-        }
-      })
-      .catch(e => {
-        document.getElementById("prices").innerHTML =
-          "<p style='color:red'>⚠️ تعذر جلب البيانات</p>";
-        console.error(e);
-      });
-  </script>
+  const container = document.getElementById("prices");
+  for (const [karat, price] of Object.entries(goldPrices)) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h2>عيار ${karat}</h2>
+      <div class="price">${price.toFixed(3)} د.ك</div>
+    `;
+    container.appendChild(card);
+  }
+</script>
 </body>
 </html>
