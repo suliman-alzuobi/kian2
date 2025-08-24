@@ -1,256 +1,195 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كيان - أسعار الذهب</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#5D5CDE',
-                        gold: '#FFD700',
-                        darkBg: '#181818',
-                        darkCard: '#2A2A2A'
-                    }
-                }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كيان - أسعار الذهب</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                primary: '#5D5CDE',
+                gold: '#FFD700',
+                darkBg: '#181818',
+                darkCard: '#2A2A2A'
             }
         }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Cairo', sans-serif;
-        }
-        .gold-gradient {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .loading-pulse {
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-    </style>
+    }
+}
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+body { font-family: 'Cairo', sans-serif; }
+.gold-gradient {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.loading-pulse {
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%,100%{opacity:1;}
+    50%{opacity:0.5;}
+}
+</style>
 </head>
 <body class="bg-gray-100 dark:bg-darkBg min-h-screen transition-colors duration-300">
 
-    <script>
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        }
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-            if (event.matches) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        });
-    </script>
+<script>
+if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+    document.documentElement.classList.add('dark');
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+    if(event.matches) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+});
+</script>
 
-    <div class="container mx-auto px-4 py-6 max-w-4xl">
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold gold-gradient mb-2">كيان</h1>
-            <p class="text-gray-600 dark:text-gray-400">أسعار الذهب العالمية</p>
-        </div>
+<div class="container mx-auto px-4 py-6 max-w-4xl">
+<!-- Header -->
+<div class="text-center mb-8">
+<h1 class="text-4xl font-bold gold-gradient mb-2">كيان</h1>
+<p class="text-gray-600 dark:text-gray-400">أسعار الذهب العالمية</p>
+</div>
 
-        <!-- Main Price Card -->
-        <div class="bg-gradient-to-br from-yellow-800 to-yellow-900 rounded-2xl p-6 mb-6 text-white shadow-xl">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <div id="currentTime" class="text-xl font-bold mb-2">--:--:--</div>
-                    <div id="currentDate" class="text-lg">-- --, ----</div>
-                </div>
-                <div class="text-left">
-                    <div class="text-sm opacity-75 mb-1">السعر الحالي</div>
-                    <div id="goldPriceUSD" class="text-3xl font-bold">$----</div>
-                    <div class="text-sm">USD Per Ounce</div>
-                </div>
-            </div>
-            
-            <!-- Auto Update Status -->
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2 space-x-reverse">
-                    <div id="updateStatus" class="w-3 h-3 bg-green-400 rounded-full loading-pulse"></div>
-                    <span class="text-sm">التحديث التلقائي نشط</span>
-                </div>
-                <button id="refreshBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg text-sm transition-all duration-200">
-                    تحديث الآن
-                </button>
-            </div>
-        </div>
+<!-- Main Price Card -->
+<div class="bg-gradient-to-br from-yellow-800 to-yellow-900 rounded-2xl p-6 mb-6 text-white shadow-xl">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div id="currentTime" class="text-xl font-bold mb-2">--:--:--</div>
+<div id="currentDate" class="text-lg">-- --, ----</div>
+</div>
+<div class="text-left">
+<div class="text-sm opacity-75 mb-1">سعر الأونصة الحالي</div>
+<div id="goldPriceUSD" class="text-3xl font-bold gold-gradient loading-pulse">$3371</div>
+<div class="text-sm">USD Per Ounce</div>
+</div>
+</div>
 
-        <!-- Price Table -->
-        <div class="bg-white dark:bg-darkCard rounded-2xl shadow-xl overflow-hidden">
-            <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 p-4">
-                <h2 class="text-xl font-bold text-white text-center">أسعار الذهب بالدينار الكويتي</h2>
-            </div>
-            
-            <div class="grid grid-cols-3 gap-0">
-                <!-- Headers -->
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 text-center font-bold border-b border-r border-gray-200 dark:border-gray-600">
-                    <div class="text-lg">بيع</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400">/Sale</div>
-                </div>
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 text-center font-bold border-b border-r border-gray-200 dark:border-gray-600">
-                    <div class="text-lg">شراء</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400">/Purchase</div>
-                </div>
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 text-center font-bold border-b border-gray-200 dark:border-gray-600">
-                    <div class="text-lg">قيراط</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400">/Carat</div>
-                </div>
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2 space-x-reverse">
+<div id="updateStatus" class="w-3 h-3 bg-green-400 rounded-full loading-pulse"></div>
+<span class="text-sm">التحديث التلقائي نشط</span>
+</div>
+<button id="refreshBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg text-sm transition-all duration-200">
+تحديث الآن
+</button>
+</div>
+</div>
 
-                <!-- 24 Carat -->
-                <div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
-                    <div id="sell24" class="text-lg font-bold text-gray-800 dark:text-gray-200">---.---</div>
-                    <div class="text-sm text-gray-500">KWD</div>
-                </div>
-                <div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
-                    <div id="buy24" class="text-lg font-bold text-gray-800 dark:text-gray-200">---.---</div>
-                    <div class="text-sm text-gray-500">KWD</div>
-                </div>
-                <div class="p-4 text-center border-b border-gray-200 dark:border-gray-600 bg-gold bg-opacity-10">
-                    <div class="text-2xl font-bold text-gray-800 dark:text-gray-200">24</div>
-                </div>
+<!-- Price Table -->
+<div class="bg-white dark:bg-darkCard rounded-2xl shadow-xl overflow-hidden">
+<div class="bg-gradient-to-r from-yellow-600 to-yellow-700 p-4">
+<h2 class="text-xl font-bold text-white text-center">أسعار الذهب بالدينار الكويتي</h2>
+</div>
 
-                <!-- 22 Carat -->
-                <div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
-                    <div id="sell22" class="text-lg font-bold text-gray-800 dark:text-gray-200">---.---</div>
-                    <div class="text-sm text-gray-500">KWD</div>
-                </div>
-                <div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
-                    <div id="buy22" class="text-lg font-bold text-gray-800 dark:text-gray-200">---.---</div>
-                    <div class="text-sm text-gray-500">KWD</div>
-                </div>
-                <div class="p-4 text-center border-b border-gray-200 dark:border-gray-600 bg-gold bg-opacity-10">
-                    <div class="text-2xl font-bold text-gray-800 dark:text-gray-200">22</div>
-                </div>
+<div class="grid grid-cols-3 gap-0">
+<!-- Headers -->
+<div class="bg-gray-50 dark:bg-gray-700 p-4 text-center font-bold border-b border-r border-gray-200 dark:border-gray-600">
+<div class="text-lg">بيع</div>
+<div class="text-sm text-gray-600 dark:text-gray-400">/Sale</div>
+</div>
+<div class="bg-gray-50 dark:bg-gray-700 p-4 text-center font-bold border-b border-r border-gray-200 dark:border-gray-600">
+<div class="text-lg">شراء</div>
+<div class="text-sm text-gray-600 dark:text-gray-400">/Purchase</div>
+</div>
+<div class="bg-gray-50 dark:bg-gray-700 p-4 text-center font-bold border-b border-gray-200 dark:border-gray-600">
+<div class="text-lg">قيراط</div>
+<div class="text-sm text-gray-600 dark:text-gray-400">/Carat</div>
+</div>
 
-                <!-- 21 Carat -->
-                <div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
-                    <div id="sell21" class="text-lg font-bold text-gray-800 dark:text-gray-200">---.---</div>
-                    <div class="text-sm text-gray-500">KWD</div>
-                </div>
-                <div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
-                    <div id="buy21" class="text-lg font-bold text-gray-800 dark:text-gray-200">---.---</div>
-                    <div class="text-sm text-gray-500">KWD</div>
-                </div>
-                <div class="p-4 text-center border-b border-gray-200 dark:border-gray-600 bg-gold bg-opacity-10">
-                    <div class="text-2xl font-bold text-gray-800 dark:text-gray-200">21</div>
-                </div>
+<!-- 24 Carat -->
+<div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
+<div id="sell24" class="text-lg font-bold text-gray-800 dark:text-gray-200">33.141</div>
+<div class="text-sm text-gray-500">KWD</div>
+</div>
+<div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
+<div id="buy24" class="text-lg font-bold text-gray-800 dark:text-gray-200">33.141</div>
+<div class="text-sm text-gray-500">KWD</div>
+</div>
+<div class="p-4 text-center border-b border-gray-200 dark:border-gray-600 bg-gold bg-opacity-10">
+<div class="text-2xl font-bold text-gray-800 dark:text-gray-200">24</div>
+</div>
 
-                <!-- 18 Carat -->
-                <div class="p-4 text-center border-r border-gray-200 dark:border-gray-600">
-                    <div id="sell18" class="text-lg font-bold text-gray-800 dark:text-gray-200">---.---</div>
-                    <div class="text-sm text-gray-500">KWD</div>
-                </div>
-                <div class="p-4 text-center border-r border-gray-200 dark:border-gray-600">
-                    <div id="buy18" class="text-lg font-bold text-gray-800 dark:text-gray-200">---.---</div>
-                    <div class="text-sm text-gray-500">KWD</div>
-                </div>
-                <div class="p-4 text-center bg-gold bg-opacity-10">
-                    <div class="text-2xl font-bold text-gray-800 dark:text-gray-200">18</div>
-                </div>
-            </div>
-        </div>
+<!-- 22 Carat -->
+<div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
+<div id="sell22" class="text-lg font-bold text-gray-800 dark:text-gray-200">30.380</div>
+<div class="text-sm text-gray-500">KWD</div>
+</div>
+<div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
+<div id="buy22" class="text-lg font-bold text-gray-800 dark:text-gray-200">30.380</div>
+<div class="text-sm text-gray-500">KWD</div>
+</div>
+<div class="p-4 text-center border-b border-gray-200 dark:border-gray-600 bg-gold bg-opacity-10">
+<div class="text-2xl font-bold text-gray-800 dark:text-gray-200">22</div>
+</div>
 
-        <!-- Footer -->
-        <div class="text-center mt-8 text-gray-500 dark:text-gray-400 text-sm">
-            <p>© 2024 كيان للذهب والمجوهرات . جميع الحقوق محفوظة</p>
-            <p class="mt-1">تحديث تلقائي كل 30 ثانية</p>
-        </div>
-    </div>
+<!-- 21 Carat -->
+<div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
+<div id="sell21" class="text-lg font-bold text-gray-800 dark:text-gray-200">28.999</div>
+<div class="text-sm text-gray-500">KWD</div>
+</div>
+<div class="p-4 text-center border-b border-r border-gray-200 dark:border-gray-600">
+<div id="buy21" class="text-lg font-bold text-gray-800 dark:text-gray-200">28.999</div>
+<div class="text-sm text-gray-500">KWD</div>
+</div>
+<div class="p-4 text-center border-b border-gray-200 dark:border-gray-600 bg-gold bg-opacity-10">
+<div class="text-2xl font-bold text-gray-800 dark:text-gray-200">21</div>
+</div>
 
-    <script>
-        let currentGoldPrice = 2371.96; // السعر الأساسي بالدولار للأونصة
-        let updateInterval = null;
+<!-- 18 Carat -->
+<div class="p-4 text-center border-r border-gray-200 dark:border-gray-600">
+<div id="sell18" class="text-lg font-bold text-gray-800 dark:text-gray-200">24.856</div>
+<div class="text-sm text-gray-500">KWD</div>
+</div>
+<div class="p-4 text-center border-r border-gray-200 dark:border-gray-600">
+<div id="buy18" class="text-lg font-bold text-gray-800 dark:text-gray-200">24.856</div>
+<div class="text-sm text-gray-500">KWD</div>
+</div>
+<div class="p-4 text-center bg-gold bg-opacity-10">
+<div class="text-2xl font-bold text-gray-800 dark:text-gray-200">18</div>
+</div>
+</div>
+</div>
 
-        // تحديث الوقت
-        function updateDateTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-            document.getElementById('currentDate').textContent = now.toLocaleDateString();
-        }
+<!-- Footer -->
+<div class="text-center mt-8 text-gray-500 dark:text-gray-400 text-sm">
+<p>© 2024 كيان للذهب والمجوهرات . جميع الحقوق محفوظة</p>
+<p class="mt-1">تحديث تلقائي كل 30 ثانية</p>
+</div>
+</div>
 
-        // توليد أسعار الذهب بشكل محاكاة واقعية
-        function generateSimulatedPrices() {
-            const fluctuation = (Math.random()-0.5)*30;
-            currentGoldPrice = Math.max(2330, Math.min(2420, currentGoldPrice + fluctuation));
+<script>
+function updateDateTime(){
+const now=new Date();
+document.getElementById('currentTime').textContent=now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+document.getElementById('currentDate').textContent=now.toLocaleDateString();
+}
 
-            const kuwaitRate = 0.435;
-            const usdPerGram = currentGoldPrice/31.1035;
-            const baseKwd = usdPerGram*kuwaitRate;
-            const spread = 0.015;
+function updateStatus(status){
+const statusEl=document.getElementById('updateStatus');
+const statusText=statusEl.nextElementSibling;
+statusEl.className='w-3 h-3 rounded-full';
+switch(status){
+case 'loading': statusEl.className+=' bg-yellow-400 loading-pulse'; statusText.textContent='جاري التحديث...'; break;
+case 'success': statusEl.className+=' bg-green-400'; statusText.textContent='تم التحديث بنجاح'; break;
+default: statusEl.className+=' bg-green-400 loading-pulse'; statusText.textContent='التحديث التلقائي نشط';
+}
+}
 
-            const data = {
-                goldPriceUSD: currentGoldPrice,
-                prices: {
-                    "24": { sell: baseKwd*(1+spread), buy: baseKwd*(1-spread) },
-                    "22": { sell: baseKwd*0.916*(1+spread), buy: baseKwd*0.916*(1-spread) },
-                    "21": { sell: baseKwd*0.875*(1+spread), buy: baseKwd*0.875*(1-spread) },
-                    "18": { sell: baseKwd*0.750*(1+spread), buy: baseKwd*0.750*(1-spread) }
-                }
-            };
-
-            updateGoldPrices(data);
-            updateStatus('success');
-        }
-
-        function updateGoldPrices(data) {
-            document.getElementById('goldPriceUSD').textContent = $${data.goldPriceUSD.toFixed(2)};
-            ['24','22','21','18'].forEach(carat => {
-                document.getElementById(sell${carat}).textContent = data.prices[carat].sell.toFixed(3);
-                document.getElementById(buy${carat}).textContent = data.prices[carat].buy.toFixed(3);
-            });
-        }
-
-        function updateStatus(status) {
-            const statusEl = document.getElementById('updateStatus');
-            const statusText = statusEl.nextElementSibling;
-            statusEl.className = 'w-3 h-3 rounded-full';
-
-            switch(status){
-                case 'loading':
-                    statusEl.className += ' bg-yellow-400 loading-pulse';
-                    statusText.textContent = 'جاري التحديث...';
-                    break;
-                case 'success':
-                    statusEl.className += ' bg-green-400';
-                    statusText.textContent = 'تم التحديث بنجاح';
-                    break;
-                case 'error':
-                    statusEl.className += ' bg-red-400';
-                    statusText.textContent = 'خطأ في التحديث';
-                    break;
-                default:
-                    statusEl.className += ' bg-green-400 loading-pulse';
-                    statusText.textContent = 'التحديث التلقائي نشط';
-            }
-        }
-
-        function startAutoUpdate() {
-            setInterval(updateDateTime, 1000); // تحديث الوقت كل ثانية
-            updateInterval = setInterval(generateSimulatedPrices, 30000); // تحديث الأسعار كل 30 ثانية
-        }
-
-        document.addEventListener('DOMContentLoaded', function(){
-            updateDateTime();
-            generateSimulatedPrices(); // أول تحديث مباشر عند التحميل
-            startAutoUpdate();
-
-            document.getElementById('refreshBtn').addEventListener('click', () => {
-                generateSimulatedPrices(); // تحديث يدوي
-            });
-        });
-    </script>
+document.addEventListener('DOMContentLoaded',function(){
+updateDateTime();
+setInterval(updateDateTime,1000);
+document.getElementById('refreshBtn').addEventListener('click',()=>{
+updateStatus('loading');
+setTimeout(()=>updateStatus('success'),500);
+});
+});
+</script>
 
 </body>
 </html>
